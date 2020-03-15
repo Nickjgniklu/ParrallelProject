@@ -1,21 +1,32 @@
-#include <stdio.h>
+#include "InfInt.h"
+#include <boost/multiprecision/cpp_bin_float.hpp>
 #include <math.h>
 #include <iostream>
-#include <iomanip>
-using namespace std;
-double square5 = sqrt(5);
-double phi = (1 + square5) / (2);
-double nphi = (1 - square5) / (2);
+#include <string>
 
-double fib(int n)
+using namespace boost::multiprecision;
+#define BigFloat number<cpp_bin_float<1000, digit_base_10, std::allocator<void>>>
+
+BigFloat square5 = std::sqrt(5);
+BigFloat phi1 = (1 + square5) / (2);
+BigFloat phi2 = (1 - square5) / (2);
+
+BigFloat fib(int n)
 {
-    return round((pow(phi, n) - pow(nphi, n)) / square5);
+    return (pow(phi1, n) - pow(phi2, n)) / square5;
 }
+
 int main(int argc, char **)
 {
-    for (int i = 0; i < 2000; i++)
+    InfInt bigInt = "123456789354321498765432165498746513549846";
+    bigInt *= 2;
+    std::cout << bigInt << std::endl;
+    BigFloat test = 1.1;
+    for (int i = 0; i < 10; i++)
     {
-        cout << fixed << "fib " << i << ":" << fib(i)<<endl;
+        // std::cout << std::setprecision(1000) << test << std::endl;
+        test *= 5.2;
     }
-    return 0;
+    std::string largeString = test.str();
+    std::cout << largeString << std::endl;
 }
