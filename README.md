@@ -1,6 +1,6 @@
 
 # ways of calculating
-	recursive type all the way - serial -- Brady
+	recursive type all the way - serial -- Brady -- Done
 	formala all the way - serial -- Nick
 	multi thread formula start, recurse the rest -- for chunks larger than 2 -- Brady
 	multi thread formual all of them.
@@ -13,7 +13,7 @@
 	Multiple blocks, -- Nick
 	Every nth number. -- Brady
 
-# Find a way to include bigint and bigfloat. -- Brady
+# Find a way to include bigint and bigfloat. -- Brady -- Done
 
 	To include the boost library for large floating point numbers:
 		go here and download the archive. https://www.boost.org/users/download/
