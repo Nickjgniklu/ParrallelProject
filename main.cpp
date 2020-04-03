@@ -1,17 +1,7 @@
+#include "Particle.hpp"
 #include <vector>
 
 float gravitationalConstant = 1.223f;
-
-struct Particle
-{
-
-    int accelerationX = 0;
-    int accelerationY = 0;
-    int posX = 0;
-    int posY = 0;
-    int velecityX = 0;
-    int velecityY = 0;
-};
 
 int main()
 {
