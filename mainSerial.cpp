@@ -3,10 +3,26 @@
 #include <iostream>
 #include <vector>
 #include <random>
+#include "MJPEGWriter.h"
+
+#define WORLDSIZE 1000
 
 float gravitationalConstant = 1.223f;
 int numberOfParticles = 1000;
 int iterations = 10;
+
+Mat GetWorldFrame(std::vector<Particle> particles)
+{
+    Mat world = Mat::zeros(WORLDSIZE, WORLDSIZE, CV_8U);
+    for (auto currentParticle : particles)
+    {
+            if(currentParticle.posX>=0 &&currentParticle.posX<WORLDSIZE&&currentParticle.posY>=0 &&currentParticle.posY<WORLDSIZE ){
+            world.at<uchar>( (int)currentParticle.posY,(int)currentParticle.posX) = 254;
+            //cout<<"x:"<<(int)currentParticle.posX<<" y:"<<(int)currentParticle.posY<<endl;
+            }
+    }
+    return world;
+}
 
 int main()
 {
@@ -22,7 +38,14 @@ int main()
     {
         particles[i] = Particle(distribution(engine), distribution(engine));
     }
-
+    //create server
+    MJPEGWriter server(7777);
+    Mat blank =Mat::zeros(WORLDSIZE, WORLDSIZE, CV_8U);
+    server.write(blank);
+    blank.release();
+    server.start();
+    std::cout<<"Open localhost:7777 and then press enter in the terminal to start";
+    std::cin.ignore();
     auto totalStart = std::chrono::high_resolution_clock::now();
     auto frameStart = std::chrono::high_resolution_clock::now();
     auto frameEnd = std::chrono::high_resolution_clock::now();
@@ -30,6 +53,8 @@ int main()
 
     for (int i = 0; i < 1000; i++)
     {
+        frameEnd = std::chrono::high_resolution_clock::now();
+
         for (auto currentParticle : particles)
         {
             for (auto otherParticle : particles)
@@ -37,7 +62,6 @@ int main()
                 currentParticle.calcGravityToOther(otherParticle);
             }
         }
-        frameEnd = std::chrono::high_resolution_clock::now();
         deltaTime = frameEnd - frameStart;
         double count = deltaTime.count();
         frameStart = std::chrono::high_resolution_clock::now();
@@ -45,9 +69,23 @@ int main()
         {
             currentParticle.update(count);
         }
+        Mat worldFrame=GetWorldFrame(particles);
+        server.write(worldFrame);
+        worldFrame.release();
+
+        std::cout<<"Tracking Pixel 500"<<endl;
+        cout<<"x:"<<particles[500].posX<<" y:"<<particles[500].posY<<endl;
+        cout<<"acel x:"<<particles[500].accelerationX<<"acel y:"<<particles[500].accelerationY<<endl;
+
+
+        std::cout<<"Frame #"<<i<<endl;
+
     }
     auto totalEnd = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> totalDiff = totalEnd - totalStart;
+    
     std::cout << "It took " << totalDiff.count() << " seconds to do " << iterations << " iterations of a universe with " << numberOfParticles << " particles in it." << std::endl;
+        server.stop();
+
     return 0;
 }

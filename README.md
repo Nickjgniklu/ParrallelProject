@@ -28,3 +28,21 @@
 # Find a way to pass bigInt through mpi system -- Brady
 	maybe and char array, 
 	maybe as int array.
+
+# How To Install OpenCV
+	sudo apt-get update
+	sudo apt-get upgrade
+	sudo apt-get install libopencv-dev
+## Compile	
+	g++ MJPEGWriter.cpp MJPEGTest.cpp -o MJPEG `pkg-config --cflags --libs opencv` -lpthread -lopencv_highgui -lopencv_core -std=c++11
+## run test
+ ./MJPG
+ A diagonal line should appear if you open localhost:7777
+
+## compile serial version
+g++ MJPEGWriter.cpp mainSerial.cpp -o serial `pkg-config --cflags --libs opencv` -lpthread -lopencv_highgui -lopencv_core -std=c++11 -O2
+
+## run it
+./serial
+open localhost 7777
+then press enter in the terminal to start
