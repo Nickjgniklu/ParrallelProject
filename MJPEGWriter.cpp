@@ -1,10 +1,9 @@
 #include "MJPEGWriter.h"
 #include <fstream>
-void
-MJPEGWriter::Listener()
+void MJPEGWriter::Listener()
 {
 
-	// send http header
+    // send http header
     std::string header;
     header += "HTTP/1.0 200 OK\r\n";
     header += "Cache-Control: no-cache\r\n";
@@ -12,7 +11,7 @@ MJPEGWriter::Listener()
     header += "Connection: close\r\n";
     header += "Content-Type: multipart/x-mixed-replace; boundary=mjpegstream\r\n\r\n";
     const int header_size = header.size();
-    char* header_data = (char*)header.data();
+    char *header_data = (char *)header.data();
     fd_set rread;
     SOCKET maxfd;
     this->open();
@@ -20,29 +19,30 @@ MJPEGWriter::Listener()
     while (true)
     {
         rread = master;
-        struct timeval to = { 0, timeout };
+        struct timeval to = {0, timeout};
         maxfd = sock + 1;
 
         int sel = select(maxfd, &rread, NULL, NULL, &to);
-        if (sel > 0) {
+        if (sel > 0)
+        {
             for (int s = 0; s < maxfd; s++)
             {
                 if (FD_ISSET(s, &rread) && s == sock)
                 {
-                    int         addrlen = sizeof(SOCKADDR);
-                    SOCKADDR_IN address = { 0 };
-                    SOCKET      client = accept(sock, (SOCKADDR*)&address, (socklen_t*)&addrlen);
+                    int addrlen = sizeof(SOCKADDR);
+                    SOCKADDR_IN address = {0};
+                    SOCKET client = accept(sock, (SOCKADDR *)&address, (socklen_t *)&addrlen);
                     if (client == SOCKET_ERROR)
                     {
-                        cerr << "error : couldn't accept connection on sock " << sock << " !" << endl;
+                        std::cerr << "error : couldn't accept connection on sock " << sock << " !" << std::endl;
                         return;
                     }
-                    maxfd = (maxfd>client ? maxfd : client);
+                    maxfd = (maxfd > client ? maxfd : client);
                     pthread_mutex_lock(&mutex_cout);
-                    cout << "new client " << client << endl;
+                    std::cout << "new client " << client << std::endl;
                     char headers[4096] = "\0";
                     int readBytes = _read(client, headers);
-                    cout << headers;
+                    std::cout << headers;
                     pthread_mutex_unlock(&mutex_cout);
                     pthread_mutex_lock(&mutex_client);
                     _write(client, header_data, header_size);
@@ -55,8 +55,7 @@ MJPEGWriter::Listener()
     }
 }
 
-void
-MJPEGWriter::Writer()
+void MJPEGWriter::Writer()
 {
     pthread_mutex_lock(&mutex_writer);
     pthread_mutex_unlock(&mutex_writer);
@@ -66,7 +65,8 @@ MJPEGWriter::Writer()
         pthread_mutex_lock(&mutex_client);
         int num_connected_clients = clients.size();
         pthread_mutex_unlock(&mutex_client);
-        if (!num_connected_clients) {
+        if (!num_connected_clients)
+        {
             usleep(milis2wait);
             continue;
         }
@@ -86,44 +86,43 @@ MJPEGWriter::Writer()
         std::vector<int>::iterator begin = clients.begin();
         std::vector<int>::iterator end = clients.end();
         pthread_mutex_unlock(&mutex_client);
-        std::vector<clientPayload*> payloads;
+        std::vector<clientPayload *> payloads;
         for (std::vector<int>::iterator it = begin; it != end; ++it, ++count)
         {
             if (count > NUM_CONNECTIONS)
                 break;
-            struct clientPayload *cp = new clientPayload({ (MJPEGWriter*)this, { outbuf.data(), outlen, *it } });
+            struct clientPayload *cp = new clientPayload({(MJPEGWriter *)this, {outbuf.data(), outlen, *it}});
             payloads.push_back(cp);
             pthread_create(&threads[count], NULL, &MJPEGWriter::clientWrite_Helper, cp);
         }
         for (; count > 0; count--)
         {
-            pthread_join(threads[count-1], NULL);
-            delete payloads.at(count-1);
+            pthread_join(threads[count - 1], NULL);
+            delete payloads.at(count - 1);
         }
         usleep(milis2wait);
     }
 }
 
-void
-MJPEGWriter::ClientWrite(clientFrame & cf)
+void MJPEGWriter::ClientWrite(clientFrame &cf)
 {
-    stringstream head;
+    std::stringstream head;
     head << "--mjpegstream\r\nContent-Type: image/jpeg\r\nContent-Length: " << cf.outlen << "\r\n\r\n";
-    string string_head = head.str();
+    std::string string_head = head.str();
     pthread_mutex_lock(&mutex_client);
-    _write(cf.client, (char*) string_head.c_str(), string_head.size());
-    int n = _write(cf.client, (char*)(cf.outbuf), cf.outlen);
-	if (n < cf.outlen)
-	{
-    	std::vector<int>::iterator it;
-      	it = find (clients.begin(), clients.end(), cf.client);
-      	if (it != clients.end())
-      	{
-      		cerr << "kill client " << cf.client << endl;
-      		clients.erase(std::remove(clients.begin(), clients.end(), cf.client));
-            	::shutdown(cf.client, 2);
-      	}
-	}
+    _write(cf.client, (char *)string_head.c_str(), string_head.size());
+    int n = _write(cf.client, (char *)(cf.outbuf), cf.outlen);
+    if (n < cf.outlen)
+    {
+        std::vector<int>::iterator it;
+        it = find(clients.begin(), clients.end(), cf.client);
+        if (it != clients.end())
+        {
+            std::cerr << "kill client " << cf.client << std::endl;
+            clients.erase(std::remove(clients.begin(), clients.end(), cf.client));
+            ::shutdown(cf.client, 2);
+        }
+    }
     pthread_mutex_unlock(&mutex_client);
     pthread_exit(NULL);
 }
