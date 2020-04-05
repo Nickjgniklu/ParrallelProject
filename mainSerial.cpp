@@ -52,10 +52,10 @@ int main(int argc, char **argv)
     std::vector<Particle> particles(numberOfParticles);
     for (int i = 0; i < numberOfParticles; i++)
     {
-        particles[i] = Particle(distribution(engine), distribution(engine), i);
+        particles[i] = Particle(distribution(engine), distribution(engine));
     }
     //create server
-    MJPEGWriter server(7778);
+    MJPEGWriter server(7777);
     Mat blank = Mat::zeros(WORLDSIZE, WORLDSIZE, CV_8U);
     server.write(blank);
     blank.release();
@@ -74,10 +74,7 @@ int main(int argc, char **argv)
         {
             for (auto &otherParticle : particles)
             {
-                if (otherParticle.id != currentParticle.id)
-                {
-                    currentParticle.calcGravityToOther(otherParticle);
-                }
+                currentParticle.calcGravityToOther(otherParticle);
             }
         }
         frameEnd = std::chrono::high_resolution_clock::now();

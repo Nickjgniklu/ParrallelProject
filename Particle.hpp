@@ -13,10 +13,9 @@ struct Particle
     float posY = 0;
     float velocityX = 0;
     float velocityY = 0;
-    int id;
 
-    Particle(float xPos, float yPos, float xVel, float yVel, int id) : posY(yPos), posX(xPos), velocityY(yVel), velocityX(xVel), id(id) {}
-    Particle(float xPos, float yPos, int id) : posY(yPos), posX(xPos), id(id) {}
+    Particle(float xPos, float yPos, float xVel, float yVel) : posY(yPos), posX(xPos), velocityY(yVel), velocityX(xVel) {}
+    Particle(float xPos, float yPos) : posY(yPos), posX(xPos) {}
     Particle() = default;
 
     void calcGravityToOther(const Particle &other)
