@@ -2,8 +2,8 @@
 #include <cmath>
 #include <iostream>
 
-extern float GRAVITATIONALCONSTANT;
-extern float FRICTIONCONSTANT;
+extern float gravitationalConstant;
+extern float frictionConstant;
 
 struct Particle
 {
@@ -25,7 +25,7 @@ struct Particle
         {
             float deltaX = other.posX - posX;
             float deltaY = other.posY - posY;
-            float gravity = GRAVITATIONALCONSTANT / std::pow(distance, 2);
+            float gravity = gravitationalConstant / std::pow(distance, 2);
             float angle = std::atan2(deltaY, deltaX);
             accelerationX += std::cos(angle) * gravity;
             accelerationY += std::sin(angle) * gravity;
@@ -41,8 +41,8 @@ struct Particle
     {
         posX += velocityX * deltaTime + accelerationX * .5f * std::pow(deltaTime, 2);
         posY += velocityY * deltaTime + accelerationY * .5f * std::pow(deltaTime, 2);
-        velocityX = (velocityX + accelerationX * deltaTime) * FRICTIONCONSTANT;
-        velocityY = (velocityY + accelerationY * deltaTime) * FRICTIONCONSTANT;
+        velocityX = (velocityX + accelerationX * deltaTime) * frictionConstant;
+        velocityY = (velocityY + accelerationY * deltaTime) * frictionConstant;
         accelerationY = 0.0f;
         accelerationX = 0.0f;
     }
