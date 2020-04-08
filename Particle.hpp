@@ -21,8 +21,12 @@ struct Particle
     void calcGravityToOther(const Particle &other)
     {
         float distance = calcDistanceToOther(other);
-        if (distance > 7)
+        if (distance > 0.1f)
         {
+            if (distance < 6)
+            {
+                distance = 6;
+            }
             float deltaX = other.posX - posX;
             float deltaY = other.posY - posY;
             float gravity = gravitationalConstant / std::pow(distance, 2);
